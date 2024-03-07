@@ -40,8 +40,6 @@ def read_DB():
             table_client.create_entity(entity=entity1)
         except ResourceExistsError:
             table_client.update_entity(entity=entity1) 
-        
-            
 
 
 @app.route(route="http_trigger", auth_level=func.AuthLevel.FUNCTION)

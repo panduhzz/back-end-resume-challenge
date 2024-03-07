@@ -14,12 +14,6 @@ visitorCount = 0
 # https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/cosmos/azure-cosmos/samples/container_management.py#L231
 def read_DB():
     from azure.core.exceptions import ResourceExistsError
-    #not sure if I need these????
-    # endpoint = "https://panduhzresume-db.table.cosmos.azure.com:443/"
-    # key = "ptBxKVEGkbIRIBQphiUzERVwyUvXrZMjRc5N2xE6dBGIxhUleKS5E6ShvGzrYOwVU3785RJOjdP2ACDb7UEtlA=="
-
-    # setting Table name as variable
-    # tableName = "azurerm"
 
     # creating an entity to insert if entity does not exist
     entity1: Dict[str, Any] = {

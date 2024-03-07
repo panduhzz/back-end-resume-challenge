@@ -8,7 +8,11 @@ from typing import Any, Dict
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
-visitorCount = 0
+entity1: Dict[str, Any] = {
+        "PartitionKey" : "pk",
+        "RowKey" : "counter",
+        "count" : 0,
+    }
 
 # Reference
 # https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/cosmos/azure-cosmos/samples/container_management.py#L231
@@ -16,12 +20,15 @@ def read_DB():
     from azure.core.exceptions import ResourceExistsError
 
     # creating an entity to insert if entity does not exist
-    entity1: Dict[str, Any] = {
-        "PartitionKey" : "pk",
-        "RowKey" : "counter",
-        "count" : visitorCount,
-    }
+    
     connectionString = os.getenv('CosmosConnectionString')
+
+    # querying count that's already in the table
+    with TableClient.from_connection_string(conn_str=connectionString
+                                                      ,table_name = "azurerm") as table_client:
+        entityCount = table_client.get_entity(partition_key="pk", row_key= "counter")
+        entity1["count"] = entityCount['count'] + 1
+
     # initializing tableclient from tableserviceclient
     with TableClient.from_connection_string(conn_str=connectionString
                                                       ,table_name = "azurerm") as table_client:
@@ -39,9 +46,6 @@ def read_DB():
 @app.route(route="http_trigger", auth_level=func.AuthLevel.FUNCTION)
 def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
-    global visitorCount
-    visitorCount += 1
-    logging.info(visitorCount)
     read_DB()
 
     return func.HttpResponse(f"Count recorded")

@@ -1,5 +1,6 @@
 import azure.functions as func
 import logging
+import json
 import os
 
 from azure.data.tables import TableServiceClient,TableClient
@@ -18,7 +19,7 @@ entity1: Dict[str, Any] = {
 # https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/cosmos/azure-cosmos/samples/container_management.py#L231
 def read_DB():
     from azure.core.exceptions import ResourceExistsError
-
+    global entity1
     # creating an entity to insert if entity does not exist
     
     connectionString = os.getenv('CosmosConnectionString')
@@ -48,7 +49,16 @@ def http_trigger(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
     read_DB()
 
-    return func.HttpResponse(f"Count recorded")
+    response_obj = {
+        "message": "Hello from Azure Functions!",
+        "count": entity1["count"]}
+    
+    # Then, you return a response with JSON content
+    return func.HttpResponse(
+        json.dumps(response_obj),
+        status_code=200,
+        mimetype="application/json"
+    )
 
 
     

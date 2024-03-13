@@ -3,3 +3,4 @@ __pycache__/function_app.cpython-311.pyc
 /.venv/
 /__pycache__/
 
+tests/__pycache__/

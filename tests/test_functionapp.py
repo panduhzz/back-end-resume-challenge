@@ -22,42 +22,24 @@ async def test_number_updates():
         page = await browser.new_page()
         await page.goto("https://www.panduhz.com/$web/index.html")
         #waiting for the DOM content to load from JavaScript to update with current visitor count
-        await page.wait_for_function("document.querySelector('.visitor-counter').textContent.includes('Visitor Count: ')")
-        getVisitorCounter = await page.query_selector('.visitor-counter')
-        text = await getVisitorCounter.text_content()
-        firstCount = int(re.search(r'\d+', text))
+        await page.wait_for_function(r"document.querySelector('.visitor-counter').textContent.match(/\d+/)")
+        text = await page.query_selector('.visitor-counter')
+        getVisitorCounter = await text.text_content()
+        reMatch1 = re.search(r'\d+', getVisitorCounter)
+        firstCount = int(reMatch1.group())
 
         #now that we got the current count, we will need to get an updated count
         await page.reload()
         await page.wait_for_load_state('domcontentloaded')
         # Now verify the counter has updated. This requires the counter on the page to actually change.
-        updatedElement = await page.query_selector('.visitor-counter')
-        updatedText = await updatedElement.text_content()
-        updatedCount = int(re.search(r'\d+', updatedText))
-        # This assertion might need to be adjusted based on how the counter updates.
+        await page.wait_for_function(r"document.querySelector('.visitor-counter').textContent.match(/\d+/)")
+        text2 = await page.query_selector('.visitor-counter')
+        updatedVisitorCount = await text2.text_content()
+        reMatch2 = re.search(r'\d+', updatedVisitorCount)
+        updatedCount = int(reMatch2.group()) 
+        
+        # This assertion might need to be adjusted baed on how the counter updates.
         assert updatedCount == firstCount + 1, "Counter did not update as expected."   
-
-
-    """
-    await page.goto("https://www.panduhz.com/$web/index.html")
-    element = await page.query_selector('.visitor-counter')
-    
-    # Assuming '.visitor-counter' exists and contains a number.
-    text = await element.text_content()
-    firstCount = int(re.search(r'\d+', text).group())
-    
-    await page.reload()
-    await page.wait_for_load_state('domcontentloaded')
-    
-    # Now verify the counter has updated. This requires the counter on the page to actually change.
-    updatedElement = await page.query_selector('.visitor-counter')
-    updatedText = await updatedElement.text_content()
-    updatedCount = int(re.search(r'\d+', updatedText).group())
-
-    # This assertion might need to be adjusted based on how the counter updates.
-    assert updatedCount == firstCount + 1, "Counter did not update as expected."
-    """   
-
 
     
 '''

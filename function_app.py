@@ -22,7 +22,7 @@ def read_DB():
     global entity1
     # creating an entity to insert if entity does not exist
     
-    connectionString = 'DefaultEndpointsProtocol=https;AccountName=panduhzresume-db;AccountKey=ptBxKVEGkbIRIBQphiUzERVwyUvXrZMjRc5N2xE6dBGIxhUleKS5E6ShvGzrYOwVU3785RJOjdP2ACDb7UEtlA==;TableEndpoint=https://panduhzresume-db.table.cosmos.azure.com:443/;'
+    connectionString = (os.getenvenv('CosmosConnectionString'))
 
     
 

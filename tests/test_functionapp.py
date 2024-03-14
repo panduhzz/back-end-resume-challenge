@@ -1,9 +1,15 @@
 import pytest
 
 from playwright.async_api import async_playwright
-import re
+from azure.data.tables import TableServiceClient
+import os
 
+import re
 import pytest_asyncio
+
+# Obtain your connection string and table name
+connection_string = os.getenv('CosmosConnectionString')
+table_name = "azurerm"
 
 @pytest.mark.asyncio
 async def test_returns_200():
@@ -39,8 +45,25 @@ async def test_number_updates():
         updatedCount = int(reMatch2.group()) 
         
         # This assertion might need to be adjusted baed on how the counter updates.
-        assert updatedCount == firstCount + 1, "Counter did not update as expected."   
+        assert updatedCount == firstCount + 1, "Counter did not update as expected."
 
+@pytest.mark.asyncio
+async def test_table_not_initalized():
+    with TableServiceClient.from_connection_string(connection_string) as table_service_client:
+        table_service_client.delete_table("azurerm")
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.goto("https://www.panduhz.com/$web/index.html")
+        #waiting for the DOM content to load from JavaScript to update with current visitor count
+        await page.wait_for_function(r"document.querySelector('.visitor-counter').textContent.match(/\d+/)")
+        text = await page.query_selector('.visitor-counter')
+        getVisitorCounter = await text.text_content()
+        reMatch1 = re.search(r'\d+', getVisitorCounter)
+        firstCount = int(reMatch1.group())
+        
+        #asserting that the first count is 1
+        assert firstCount == 1, "Deleted table, counter did not update correctly"
     
 '''
 def run(playwright: Playwright) -> None:

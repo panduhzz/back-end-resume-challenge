@@ -22,13 +22,9 @@ def read_DB():
     global entity1
     # creating an entity to insert if entity does not exist
     
-    connectionString = os.getenv('CosmosConnectionString')
+    connectionString = 'DefaultEndpointsProtocol=https;AccountName=panduhzresume-db;AccountKey=ptBxKVEGkbIRIBQphiUzERVwyUvXrZMjRc5N2xE6dBGIxhUleKS5E6ShvGzrYOwVU3785RJOjdP2ACDb7UEtlA==;TableEndpoint=https://panduhzresume-db.table.cosmos.azure.com:443/;'
 
-    # querying count that's already in the table
-    with TableClient.from_connection_string(conn_str=connectionString
-                                                      ,table_name = "azurerm") as table_client:
-        entityCount = table_client.get_entity(partition_key="pk", row_key= "counter")
-        entity1["count"] = entityCount['count'] + 1
+    
 
     # initializing tableclient from tableserviceclient
     with TableClient.from_connection_string(conn_str=connectionString
@@ -40,7 +36,13 @@ def read_DB():
         # Trying to create the entity, if exists update the entity
         try:
             table_client.create_entity(entity=entity1)
+            entity1["count"] = entity1["count"] + 1
         except ResourceExistsError:
+            # querying count that's already in the table
+            with TableClient.from_connection_string(conn_str=connectionString
+                                                      ,table_name = "azurerm") as table_client:
+                entityCount = table_client.get_entity(partition_key="pk", row_key= "counter")
+                entity1["count"] = entityCount['count'] + 1
             table_client.update_entity(entity=entity1) 
 
 
